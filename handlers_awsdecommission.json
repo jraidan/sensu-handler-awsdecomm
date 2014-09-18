@@ -1,0 +1,13 @@
+{
+  "handlers": {
+    "awsdecommission": {
+      "type": "pipe",
+      "command": "/etc/sensu/handlers/awsdecommission.rb",
+      "severities": [
+        "ok",
+        "warning",
+        "critical"
+      ]
+    }
+  }
+}

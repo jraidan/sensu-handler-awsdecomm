@@ -1,7 +1,7 @@
 awsdecomm
 =========
 
-A sensu handler for decomission of AWS nodes in sensu. I tweaked the orginal to makes use of an IAM role for EC2 API credentials and to remove the email functions. 
+A sensu handler for decomission of AWS nodes in sensu. I tweaked the orginal to make use of an IAM role for EC2 API credentials and to remove the email and chef functions. 
 
 Original:
 http://www.ragedsyscoder.com/blog/2014/01/14/sensu-automated-decommission-of-clients/
