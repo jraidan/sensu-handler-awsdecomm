@@ -1,25 +1,25 @@
 awsdecomm
 =========
 
-A sensu handler for decomission of AWS nodes in sensu and chef-server.
+A sensu handler for decomission of AWS nodes in sensu. I tweaked the orginal to makes use of an IAM role for EC2 API credentials and to remove the email functions. 
 
-A walkthrough to create your own http://www.ragedsyscoder.com/blog/2014/01/14/sensu-automated-decommission-of-clients/
+Original:
+http://www.ragedsyscoder.com/blog/2014/01/14/sensu-automated-decommission-of-clients/
+https://github.com/agent462/sensu-handler-awsdecomm
 
 Features
 --------
 * Checks state of node in AWS
 * Decomission of node from Sensu
-* Decomission of node and client from Chef Server
-* Email on failure or success of decommission
 * Handles normal resolve/create keepalive events when decomm is not needed
 
 Usage and Configuration
 -----------------------
-This handler uses the sensu-plugin.
-  > gem install sensu-plugin
+This handler uses the sensu-plugin. You installed using the Sensu "omnibus" packages, right?  :)
 
-You will need to attach this to the default handler in sensu.  Sensu sends client keepalive failures to the default handler.  If a client keepalive gets sent to this handler it will proceed to check if it should be removed from sensu and chef.
-`/etc/sensu/conf.d/handlers/default.json`
+You will need to attach this to the default handler in sensu.  Sensu sends client keepalive failures to the default handler.  If a client keepalive gets sent to this handler it will proceed to check the instances status via the EC2 API and remove it from sensu if in a "terminated", "shutting_down", "stopping", or "stopped" state.
+
+`/etc/sensu/conf.d/handlers_default.json`
 ````
 {
   "handlers": {
@@ -33,7 +33,7 @@ You will need to attach this to the default handler in sensu.  Sensu sends clien
 }
 ````
 
-`/etc/sensu/conf.d/handlers/awsdecommission.json`
+`/etc/sensu/conf.d/handlers_awsdecommission.json`
 ````
 {
   "handlers": {
@@ -50,44 +50,29 @@ You will need to attach this to the default handler in sensu.  Sensu sends clien
 }
 ````
 
-awsdecomm relies on a bunch of configuration files set in awsdecomm.json.  You will need to provide AWS credentials, Chef Server information, Chef client key and smtp server information.
-
-`/etc/sensu/conf.d/handlers/awsdecomm.json`
-````
-{ 
-  "awsdecomm":{
-      "chef_server_host": "127.0.0.1",
-      "chef_server_port": "4000",
-      "chef_server_version": "0.10.16.2",
-      "chef_client_user": "sensu",
-      "chef_client_key_dir": "/etc/sensu/conf.d/handlers/sensu.pem",
-      "access_key_id": "ACCESS_KEY_ID",
-      "secret_access_key": "SECRET_ACCESS_KEY",
-      "mail_from": "sensu@example.com",
-      "mail_to": "nobody@example.com",
-      "smtp_address": "localhost",
-      "smtp_port": "25",
-      "smtp_domain": "localhost"
-    }
-}
-````
+awsdecomm relies on an IAM role with at least read-only permissions for the EC2 API.
 
 Notables
 --------
-* This plugin attempts to catch failures and will alert you so that manual intervention can be taken.
-* I've tried to incorporate a mildly verbose logging to the sensu-server.log on each step. 
-* Right now this handler only checks us-east-1 and us-west-2.  This will end up configurable.  You can manually change this in the meantime.  
+* The original author tried to incorporate mildly verbose logging to the sensu-server.log on each step. 
+* This handler only checks the regions you specify on line 44 of the handler. Add more like so:
+
+````
+%w{ ec2.us-east-1.amazonaws.com ec2.us-west-2.amazonaws.com ec2.eu-west-1.amazonaws.com }.each do |region|
+````
+
 * This handler never terminates servers in AWS itself.  It simply takes action on nodes that do not exist or are in a terminated or shutting-down state.
 
 Contributions
 -------------
-Please provide a pull request.  
+Please provide a pull request. 
 
 
 License and Author
 ==================
 
 Author:: Bryan Brandau <agent462@gmail.com>
+Mangled by:: Jerry Rose <github1@jerryrose.org>
 
 Copyright:: 2013, Bryan Brandau
 
