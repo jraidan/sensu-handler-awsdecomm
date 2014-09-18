@@ -72,7 +72,8 @@ License and Author
 ==================
 
 Author:: Bryan Brandau <agent462@gmail.com>
-Mangled by:: Jerry Rose <github1@jerryrose.org>
+
+Mangled by:: Jerry Rose
 
 Copyright:: 2013, Bryan Brandau
 
